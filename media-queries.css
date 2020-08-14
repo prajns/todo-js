@@ -1,0 +1,24 @@
+@media (max-width: 1100px) { 
+    header {
+        padding-left: 0.5em;
+    }
+
+    .stack {
+        width: 33%;
+    }
+}
+
+@media (max-width: 880px) { 
+    body {
+        font-size: 80%;
+    }
+
+    .stack {
+        width: 33%;
+        margin: 0 0.5em;
+    }
+
+    .btn-add {
+        padding: 2px 6px;
+    }
+}

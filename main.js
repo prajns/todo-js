@@ -1,7 +1,7 @@
 //TODO Model
 const todoModel = (function () {
 
-    let tabTasks = [];
+    let arrTasks = [];
 
     const Task = function (title, desc, state) {
         this.id = `task_${Date.now()}${Math.random()}`;
@@ -11,52 +11,52 @@ const todoModel = (function () {
     }
 
     const findTaskIndex = function (taskId) {
-        return tabTasks.findIndex(x => x.id === taskId);
+        return arrTasks.findIndex(x => x.id === taskId);
     }
 
     return {
 
         initTask: function (title, desc, state) {
             const taskTmp = new Task(title, desc, state);
-            tabTasks.unshift(taskTmp);
+            arrTasks.unshift(taskTmp);
             return taskTmp.id;
         },
 
         setTitle: function (taskId, taskTitle) {
             const index = findTaskIndex(taskId);
-            tabTasks[index].title = taskTitle;
+            arrTasks[index].title = taskTitle;
         },
 
         setDesc: function (taskId, taskDesc) {
             const index = findTaskIndex(taskId);
-            tabTasks[index].desc = taskDesc;
+            arrTasks[index].desc = taskDesc;
         },
 
         setState: function (taskId, taskState) {
             const index = findTaskIndex(taskId);
-            tabTasks[index].state = taskState;
+            arrTasks[index].state = taskState;
         },
 
         setTasksArray: function (arr) {
-            tabTasks = [];
-            tabTasks = [...arr];
+            arrTasks = [];
+            arrTasks = [...arr];
         },
 
         removeTask: function (taskId) {
             const index = findTaskIndex(taskId);
-            tabTasks.splice(index, 1);
+            arrTasks.splice(index, 1);
         },
 
         sortTasks: function (tabId) {
-            const tmpTab = [];
+            const arrTemp = [];
 
-            for (let i = 0; i < tabTasks.length; i++) {
-                const wtf = tabId.findIndex(x => x === tabTasks[i].id);
-                tmpTab[wtf] = tabTasks[i];
+            for (let i = 0; i < arrTasks.length; i++) {
+                const wtf = tabId.findIndex(x => x === arrTasks[i].id);
+                arrTemp[wtf] = arrTasks[i];
             }
 
-            this.setTasksArray(tmpTab);
-        //    console.table(tabTasks);
+            this.setTasksArray(arrTemp);
+            // console.table(arrTasks);
         },
 
         getTasksCount: function () {
@@ -64,7 +64,7 @@ const todoModel = (function () {
             let countDoing = 0;
             let countDone = 0;
 
-            tabTasks.forEach(element => {
+            arrTasks.forEach(element => {
                 if(element.state === "todo") countTodo++;
                 if(element.state === "doing") countDoing++;
                 if(element.state === "done") countDone++;
@@ -74,16 +74,15 @@ const todoModel = (function () {
         },
 
         getLocalStorageTasks: function () {
-            const lsTasks = JSON.parse(localStorage.getItem("tasks"));
+            const lsTasks = JSON.parse(localStorage.getItem("tasks") || "[]" );
             this.setTasksArray(lsTasks);
             
-            return tabTasks;
+            return arrTasks;
         },
 
         updateLocalStorage: function () {
-            localStorage.setItem("tasks", JSON.stringify(tabTasks));
+            localStorage.setItem("tasks", JSON.stringify(arrTasks));
         }
-
     }
 
 })();
@@ -91,51 +90,46 @@ const todoModel = (function () {
 //TODO View
 const todoView = (function () { 
     const DOMstrings = {
-        main: 'main',
-        btnAdd: '.btn-add',
-        btnTodo: '.btn-todo',
-        btnDoing: '.btn-doing',
-        btnDone: '.btn-done',
-        btnDelete: 'btn-delete',
         counterTodo: '.count-todo',
         counterDoing: '.count-doing',
         counterDone: '.count-done',
-        classStack: 'stack-content',
-        classCard: '.card',
-        classEditable: 'text-editable',
-        classCardTitle: 'card-title',
-        classCardIcon: '.icon-card',
-        classCardDesc: 'card-desc',
-        classHelp: '.card-help'
+        cStackContent: 'stack-content',
+        cTask: 'task',
+        cEditable: 'text-editable',
+        cTaskTitle: 'task-title',
+        cTaskIcon: 'task-icon',
+        cTaskTitleError: 'task-title-error',
+        cBtnAdd: 'btn-add',
+        cBtnDelete: 'btn-delete'
     };
 
     const stateIcons = [`<i class="far fa-square text-light"></i>`, `<i class="far fa-edit text-yellow"></i>`, `<i class="far fa-check-square text-green"></i>`];
 
     const taskTemplate = `
-        <div class="card" id="%%CARD_ID%%" draggable="true">
-            <div class="card-header">
-                <span class="text-light card-title text-editable">%%CARD_TITLE%%</span>
-                <span class="icon-card">%%CARD_HEADER_ICON%%</span>
-                <span class="text-light icon-delete"><i class="fas fa-trash btn-delete"></i></span>
+        <div class="task text-light" id="%%CARD_ID%%" draggable="true">
+            <div class="task-header">
+                <span class="task-title text-editable">%%CARD_TITLE%%</span>
+                <span class="task-icon">%%CARD_HEADER_ICON%%</span>
+                <span class="task-icon-delete"><i class="fas fa-trash btn-delete"></i></span>
             </div>
-            <div class="card-help">
+            <div class="task-title-error">
                 <span class="text-red">Musisz przypisać tytuł karcie!</span>
             </div>
-            <div class="card-body">
-                <textarea class="text-light card-desc">%%CARD_DESC%%</textarea>
+            <div class="task-body">
+                <textarea class="task-desc">%%CARD_DESC%%</textarea>
             </div>
         </div>
     `;
 
     const setIcon = function(state) {
         if (state === "todo") {
-            cardIcon = stateIcons[0];
+            taskIcon = stateIcons[0];
         } else if (state === "doing") {
-            cardIcon = stateIcons[1];
+            taskIcon = stateIcons[1];
         } else {
-            cardIcon = stateIcons[2];
+            taskIcon = stateIcons[2];
         }
-        return cardIcon;
+        return taskIcon;
     }
 
     return {
@@ -147,7 +141,7 @@ const todoView = (function () {
             var stack = document.querySelector(`#${state}`);
             setIcon(state);
 
-            const currentTaskTemplate = taskTemplate.replace(/%%CARD_HEADER_ICON%%/, cardIcon)
+            const currentTaskTemplate = taskTemplate.replace(/%%CARD_HEADER_ICON%%/, taskIcon)
                                                     .replace(/%%CARD_ID%%/, id)
                                                     .replace(/%%CARD_TITLE%%/, title)
                                                     .replace(/%%CARD_DESC%%/, desc)
@@ -156,10 +150,25 @@ const todoView = (function () {
         },
 
         deleteTask: function (element) {
-            
-            const taskId = element.closest(DOMstrings.classCard).id;
-            element.closest(DOMstrings.classCard).remove();
+            const taskId = element.closest(`.${DOMstrings.cTask}`).id;
+            element.closest(`.${DOMstrings.cTask}`).remove();
             return taskId;
+        },
+
+        isTitleCorrect:  function (element) {
+            const taskElement = element.closest(`.${DOMstrings.cTask}`);
+
+            const helpElement = taskElement.querySelector(`.${DOMstrings.cTaskTitleError}`);
+
+            if (element.value.length === 0 || element.value === "Wpisz tytuł...") {
+                helpElement.style.display="block";
+                this.toggleTitleDark(taskElement);
+                return false;
+            } else {
+                helpElement.style.display="none";
+                this.toggleTitleDark(taskElement);
+                return true;
+            }
         },
 
         switchSpanToEditable: function (element) {
@@ -168,23 +177,24 @@ const todoView = (function () {
 
             let editElement = null;
 
-            if (element.classList.contains(DOMstrings.classCardTitle)){
+            if (element.classList.contains(DOMstrings.cTaskTitle)){
                 editElement = document.createElement("INPUT");
                 editElement.setAttribute("type", "text");
                 editElement.setAttribute("required", "");
             }
 
             parentElement.insertAdjacentElement('afterbegin', editElement).focus();
-            editElement.value = elementContent;
+
+            elementContent === "Wpisz tytuł..." ? editElement.value = "" : editElement.value = elementContent;
 
             element.style.display="none";
 
-            return editElement;
+            this.isTitleCorrect(editElement);
         },
 
         switchEditableToSpan: function (element, elementClass) {
             let inputContent = element.value;
-            const textElement = element.closest(DOMstrings.classCard).querySelector(`.${elementClass}`);
+            const textElement = element.closest(`.${DOMstrings.cTask}`).querySelector(`.${elementClass}`);
 
             textElement.textContent = inputContent;
             element.remove();
@@ -193,30 +203,35 @@ const todoView = (function () {
             return textElement.textContent;
         },
 
-        checkHelp:  function (element) {
-            const helpElement = element.closest(DOMstrings.classCard).querySelector(DOMstrings.classHelp);
-    
-            if (element.value.length === 0 || element.value === "Wpisz tytuł...") {
-                helpElement.style.display="block";
-            } else {
-                helpElement.style.display="none";
-            }
-        },
-
-        changeState: function (element) {
+        changeStateIcon: function (element) {
             const newIcon = setIcon(element.parentElement.id);
-            const iconElement = element.querySelector(DOMstrings.classCardIcon);
+            const iconElement = element.querySelector(`.${DOMstrings.cTaskIcon}`);
             iconElement.innerHTML = newIcon;
         }, 
 
-        updateCounters: function(counters) {
+        updateCounters: function (counters) {
             const {countTodo, countDoing, countDone} = counters;
 
             document.querySelector(DOMstrings.counterTodo).textContent = `(${countTodo})`;
             document.querySelector(DOMstrings.counterDoing).textContent = `(${countDoing})`;
             document.querySelector(DOMstrings.counterDone).textContent = `(${countDone})`;
-        }
+        },
 
+        toggleDragnDropBorder: function () {
+            const tasksStacks = document.querySelectorAll(`.${DOMstrings.cStackContent}`);
+            tasksStacks.forEach(element => {
+                element.classList.toggle("border-dashed");
+            });
+        },
+
+        toggleTitleDark: function (taskElement) {
+            const helpElement = taskElement.querySelector(`.${DOMstrings.cTaskTitleError}`);
+            if (helpElement.style.display==="block") {
+                taskElement.classList.add("text-light");
+            } else {
+                taskElement.classList.remove("text-light");
+            }
+        }
     }
 
 })();
@@ -236,23 +251,21 @@ const todoController = (function (todoModel, todoView) {
     };
 
     const getTaskIdArray = function () {
-        const tabDivs = [...document.querySelectorAll(".card")];
-        const tabIds = tabDivs .map(element => element.id);
+        const tabDivs = [...document.querySelectorAll(".task")];
+        const tabIds = tabDivs.map(element => element.id);
 
         return tabIds;
     };
 
     const setupEventListeners = function () {
-        const DOM = todoView.getDOMstrings();
+        const DOMstrings = todoView.getDOMstrings();
 
-        document.querySelector(DOM.main).addEventListener('click', function(event) {
+        document.addEventListener('click', function(event) {
             let target = event.target;
 
-            if (target.tagName === 'BUTTON' ) {
-                // Create new Task card
+            if ( target.classList.contains(DOMstrings.cBtnAdd) ) { // Click any of add buttons
                 const taskState = target.dataset.state;
 
-                //Initialize Task object
                 const taskId = todoModel.initTask("Wpisz tytuł...", "Tutaj wpisz opis...", taskState);
 
                 todoView.createTask(taskId, 'Wpisz tytuł...', 'Tutaj wpisz opis...', taskState);
@@ -260,117 +273,140 @@ const todoController = (function (todoModel, todoView) {
                 todoModel.sortTasks(getTaskIdArray());
 
                 todoView.updateCounters(todoModel.getTasksCount());
-
-                if (isLocalStorageAvailable()) {
-                    todoModel.updateLocalStorage();
-                }
-            } else if (target.classList.contains(DOM.classEditable)) {
-                const inputElement = todoView.switchSpanToEditable(target);
-                todoView.checkHelp(inputElement);
-            } else if (target.classList.contains(DOM.btnDelete)) {
+            } else if ( target.classList.contains(DOMstrings.cBtnDelete) ) { // Click delete task
                 const taskId = todoView.deleteTask(target);
 
-                // Delete task from Array;
                 todoModel.removeTask(taskId);
 
                 todoView.updateCounters(todoModel.getTasksCount());
 
-                if (isLocalStorageAvailable()) {
+                if ( isLocalStorageAvailable() ) {
                     todoModel.updateLocalStorage();
                 }
+            } else if ( target.classList.contains(DOMstrings.cEditable) ) { // Click on title
+                todoView.switchSpanToEditable(target);
             } else {
                 return;
             }
 
         });
 
-        document.querySelector(DOM.main).addEventListener("input", function(event){
+        // Check if input is valid during typing
+        document.addEventListener("input", function(event) {
             let target = event.target;
 
-            if(target.tagName !== "INPUT") return;
+            if ( todoView.isTitleCorrect(target) ) {
+                const taskElementId = target.closest(`.${DOMstrings.cTask}`).id;
 
-            todoView.checkHelp(target);
-        });
-
-        document.querySelector(DOM.main).addEventListener('focusout', function(event){
-            let target = event.target;
-
-            if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
-                const helpElement = target.closest(DOM.classCard).querySelector(DOM.classHelp);
-                const cardElementId = target.closest(DOM.classCard).id;
-                 
-                if (target.tagName === "INPUT" && helpElement.style.display==="none") {
-                    const taskTitle = todoView.switchEditableToSpan(target, DOM.classCardTitle);
-                    todoModel.setTitle(cardElementId , taskTitle);
+                if (target.tagName === "INPUT") {
+                    todoModel.setTitle(taskElementId , target.value);
                 } else if (target.tagName === "TEXTAREA") {
-                    todoModel.setDesc(cardElementId , target.value);
+                    todoModel.setDesc(taskElementId , target.value);
                 }
 
-                if (isLocalStorageAvailable()) {
+                if ( isLocalStorageAvailable() ) {
                     todoModel.updateLocalStorage();
+                }
+            }
+
+        });
+
+        // Focusout title event
+        document.addEventListener('focusout', function(event){
+            let target = event.target;
+
+            if ( target.tagName === "INPUT" && todoView.isTitleCorrect(target) ) {
+                const taskElementId = target.closest(`.${DOMstrings.cTask}`).id;
+
+                const taskTitle = todoView.switchEditableToSpan(target, DOMstrings.cTaskTitle);
+                todoModel.setTitle(taskElementId , taskTitle);
+
+                if ( isLocalStorageAvailable() ) {
+                    todoModel.updateLocalStorage();
+                }
+
+            }
+        });
+
+        document.addEventListener('keypress', function (event) {
+            if ( document.activeElement.tagName === "INPUT" ) {
+                const helpElement = document.activeElement.closest(`.${DOMstrings.cTask}`).querySelector(`.${DOMstrings.cTaskTitleError}`);
+
+                if ( event.key === 'Enter' && helpElement.style.display==="none" ) {
+                    document.activeElement.blur();
                 }
             }
         });
 
         // DRAG n DROP
-        document.querySelector(DOM.main).addEventListener("drop", function(){
+        document.addEventListener("drop", function(){
             let target = event.target;
 
-            if (!target.classList.contains(DOM.classStack)) return;
+            const stackElement = target.closest(`.${DOMstrings.cStackContent}`);
+
+            if ( stackElement === null ) return;
+
+            todoView.toggleDragnDropBorder();
 
             event.preventDefault();
             const data = event.dataTransfer.getData("text");
-            const taskCard = document.getElementById(data);
-            event.target.appendChild(taskCard);
 
-            //change state
-            todoView.changeState(taskCard);
-            todoModel.setState(taskCard.id, target.id);
+            const taskElement = document.getElementById(data);
 
-            //update tabTasks
-            todoModel.sortTasks(getTaskIdArray());
+            if ( taskElement ) {
+                
+                stackElement.appendChild(taskElement);
 
-            todoView.updateCounters(todoModel.getTasksCount());
+                todoView.changeStateIcon(taskElement);
+                todoModel.setState(taskElement.id, stackElement.id);
 
-            if (isLocalStorageAvailable()) {
+                todoModel.sortTasks(getTaskIdArray());
+
+                todoView.updateCounters(todoModel.getTasksCount());
+            }
+
+            if ( isLocalStorageAvailable() ) {
                 todoModel.updateLocalStorage();
             }
         });
 
-        document.querySelector(DOM.main).addEventListener("dragover", function(){
+        document.addEventListener("dragover", function(){
             event.preventDefault();
         });
 
-        document.querySelector(DOM.main).addEventListener("dragstart", function(){
+        document.addEventListener("dragstart", function(){
             let target = event.target;
 
-            if (target.classList.contains(DOM.classCard)) return;
+            if ( !target.classList.contains(DOMstrings.cTask) ) return;
 
             event.dataTransfer.setData("text", event.target.id);
-        });
 
+            todoView.toggleDragnDropBorder();
+        });
     };
 
-    const fetchTasks = function () {
+    const fetchLocalStorageTasks = function () {
         let tasks = [];
 
-        if (isLocalStorageAvailable()) {
+        if ( isLocalStorageAvailable() ) {
             tasks = [...todoModel.getLocalStorageTasks()];
+
+            for ( let i = 0; i < tasks.length; i++ ) {
+                todoView.createTask(tasks[i].id, tasks[i].title, tasks[i].desc, tasks[i].state);
+                todoView.toggleTitleDark(document.getElementById(tasks[i].id));
+            }
+    
+            todoView.updateCounters(todoModel.getTasksCount());
         } else {
             console.error("Local storage not available!");
         }
 
-        for (let i = 0; i < tasks.length; i++) {
-            todoView.createTask(tasks[i].id, tasks[i].title, tasks[i].desc, tasks[i].state);
-        }
-
-        todoView.updateCounters(todoModel.getTasksCount());
     };
 
     return {
         init: function() {
             setupEventListeners();
-            fetchTasks();
+            fetchLocalStorageTasks();
         }
     }
 

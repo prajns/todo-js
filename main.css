@@ -4,7 +4,7 @@
 }
 
 html {
-    font-size: 20px;
+    font-size: 1.2em;
     color: #29333d;
     font-family: 'Chivo', sans-serif;
 }
@@ -13,8 +13,6 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: row;
-/* DO usunięcia poniżej? */
-    text-rendering: optimizeLegibility;
     overflow-x: hidden;
     overflow-y: hidden;
 }
@@ -66,7 +64,7 @@ main {
 .stack {
     display: flex;
     flex-direction: column;
-    width: 20%;
+    width: 25%;
     margin: 0 2em;
     max-height: 100%;
 }
@@ -103,25 +101,21 @@ main {
     cursor: pointer;
 }
 
-/* width */
 ::-webkit-scrollbar {
     width: 8px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
+}
+
+::-webkit-scrollbar-track {
     background: #f1f1f1;
-  }
-   
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
+}
+
+::-webkit-scrollbar-thumb {
     background: #697d8e; 
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+::-webkit-scrollbar-thumb:hover {
     background: #7a91a5; 
-  }
+}
 
 .stack-content {
     height: calc(100vh - 10em );
@@ -131,7 +125,7 @@ main {
     flex-direction: column;
 }
 
-.card {
+.task {
     display: flex;
     flex-direction: column;
     max-width: calc(100% - 10px);
@@ -143,55 +137,57 @@ main {
     padding: 20px;
     transition: all 0.2s;
     cursor: move;
+    color: #00214C;
 }
 
-.card:hover {
+.task:hover {
     box-shadow: #999 1px 1px 3px 1px;
 }
 
-.card-header {
+.task-header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.card-title {
+.task-title {
     font-size: 90%;
     font-weight: bold;
     width: auto;
+    cursor: text;
 }
 
-.icon-card {
+.task-icon {
     display: inline-block;
 }
 
-.icon-delete {
+.task-icon-delete {
     cursor: pointer;
     display: none;
     transition: all 0.2s;
 }
 
-.icon-delete:hover {
+.task-icon-delete:hover {
     color: #dd6f6f;
 }
 
-.card-header:hover .icon-card {
+.task-header:hover .task-icon {
     display: none;
 }
 
-.card-header:hover .icon-delete {
+.task-header:hover .task-icon-delete {
     display: inline-block;
 }
 
-.card-help {
+.task-title-error {
     display: none;
 }
 
-.card-help span {
+.task-title-error span {
     font-size: 60%;
 }
 
-.card-body {
+.task-body {
     margin-top: 10px;
     font-size: 80%;
     height: 100%;
@@ -213,7 +209,6 @@ textarea {
     height: 100%;
     font-size: 85%;
     box-sizing: border-box;
-    color: #697d8e;
     outline: none;
     border: none;
     resize: none;
@@ -239,4 +234,8 @@ textarea {
 
 .text-green {
     color: #59CC8A;
+}
+
+.border-dashed {
+    border: 1px dashed #00214C;
 }
