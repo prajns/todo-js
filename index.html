@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>TODO App</title>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link href='http://fonts.googleapis.com/css?family=Chivo&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+        <script src="https://kit.fontawesome.com/69e9ddb208.js" crossorigin="anonymous"></script>
+        <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    </head>
+    <body>
+        
+            <aside> </aside>
+            <div class="container-col"> 
+                <header><h1>Lista zadań</h1></header>
+                <main>
+                    <article class="stack">
+                        <div class="stack-header">
+                            <div>
+                                <h2>Do zrobienia</h2>
+                                <span class="count-todo text-light">(0)</span>
+                            </div>
+                            <button type="button" class="btn-add btn-todo" data-state="todo">Dodaj <i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="stack-content" id="todo"></div>
+                    </article>
+                    <article class="stack">
+                        <div class="stack-header">
+                            <div>
+                                <h2>W trakcie</h2>
+                                <span class="count-doing text-light">(0)</span>
+                            </div>
+                            <button type="button" class="btn-add btn-doing" data-state="doing">Dodaj <i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="stack-content" id="doing"></div>
+                    </article>
+                    <article class="stack">
+                        <div class="stack-header">
+                            <div>
+                                <h2>Zrobione</h2>
+                                <span class="count-done text-light">(0)</span>
+                            </div>
+                            <button type="button" class="btn-add btn-done" data-state="done">Dodaj <i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="stack-content" id="done"></div>
+                    </article>
+                </main>
+            </div>
+
+        <script src="main.js"></script>
+    </body>
+</html>

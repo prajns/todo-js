@@ -1,0 +1,242 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 20px;
+    color: #29333d;
+    font-family: 'Chivo', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+/* DO usunięcia poniżej? */
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+aside {
+    display: flex;
+    width: 4em;
+    background-color: #00214C;
+}
+
+.container-col {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    background-color: #f7f9fb;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    height: 3.75em;
+    background-color: #fff;
+    box-shadow: #000 0 0 1px;
+    padding-left: 2em;
+}
+
+header h1 {
+    font-size: 120%;
+    margin: 20px 0;
+}
+
+.stack-header h2 {
+    font-size: 100%;
+    display: inline;
+}
+
+.stack-header span {
+    margin-left: 8px;
+    font-size: 100%;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    padding-top: 30px;;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    margin: 0 2em;
+    max-height: 100%;
+}
+
+.stack-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-add {
+    border: 1px solid #697d8e;
+    color: #697d8e;
+    font-size: 80%;
+    font-weight: bold;
+    background-color: #fff;
+    border-radius: 30px;
+    padding: 8px 16px;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.btn-add i {
+    margin-left: 10px;
+    pointer-events: none;
+}
+
+.btn-add:hover,
+.btn-add:active {
+    color: white;
+    background-color: #697d8e;
+    cursor: pointer;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #697d8e; 
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #7a91a5; 
+  }
+
+.stack-content {
+    height: calc(100vh - 10em );
+    display: flex;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-direction: column;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    max-width: calc(100% - 10px);
+    min-height: 10em;
+    background-color: #fff;
+    box-shadow: #ccc 1px 1px 3px 1px;
+    border-radius: 3px;
+    margin: 10px;
+    padding: 20px;
+    transition: all 0.2s;
+    cursor: move;
+}
+
+.card:hover {
+    box-shadow: #999 1px 1px 3px 1px;
+}
+
+.card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.card-title {
+    font-size: 90%;
+    font-weight: bold;
+    width: auto;
+}
+
+.icon-card {
+    display: inline-block;
+}
+
+.icon-delete {
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s;
+}
+
+.icon-delete:hover {
+    color: #dd6f6f;
+}
+
+.card-header:hover .icon-card {
+    display: none;
+}
+
+.card-header:hover .icon-delete {
+    display: inline-block;
+}
+
+.card-help {
+    display: none;
+}
+
+.card-help span {
+    font-size: 60%;
+}
+
+.card-body {
+    margin-top: 10px;
+    font-size: 80%;
+    height: 100%;
+}
+
+input[type=text] {
+    width: 100%;
+    margin-right: 8px;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 2px solid #697d8e;
+    outline: none;
+    font-family: 'Chivo', sans-serif;
+    color: #697d8e;
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
+    font-size: 85%;
+    box-sizing: border-box;
+    color: #697d8e;
+    outline: none;
+    border: none;
+    resize: none;
+    font-family: 'Chivo', sans-serif;
+    color: #697d8e;
+}
+
+/*
+    REUSABLE
+*/
+
+.text-light {
+    color: #697d8e;
+}
+
+.text-red {
+    color: #dd6f6f;
+}
+
+.text-yellow {
+    color: #D9C091;
+}
+
+.text-green {
+    color: #59CC8A;
+}
