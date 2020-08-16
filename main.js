@@ -10,41 +10,36 @@ const todoModel = (function () {
         this.state = state;
     }
 
-    const findTaskIndex = function (taskId) {
-        return arrTasks.findIndex(x => x.id === taskId);
-    }
-
     return {
 
+        findTaskIndex: function (taskId) {
+            return arrTasks.findIndex(x => x.id === taskId);
+        },
+
         initTask: function (title, desc, state) {
-            const taskTmp = new Task(title, desc, state);
-            arrTasks.unshift(taskTmp);
-            return taskTmp.id;
+            const taskTemp = new Task(title, desc, state);
+            arrTasks = [...arrTasks, taskTemp];
+            return taskTemp.id;
         },
 
         setTitle: function (taskId, taskTitle) {
-            const index = findTaskIndex(taskId);
+            const index = this.findTaskIndex(taskId);
             arrTasks[index].title = taskTitle;
         },
 
         setDesc: function (taskId, taskDesc) {
-            const index = findTaskIndex(taskId);
+            const index = this.findTaskIndex(taskId);
             arrTasks[index].desc = taskDesc;
         },
 
         setState: function (taskId, taskState) {
-            const index = findTaskIndex(taskId);
+            const index = this.findTaskIndex(taskId);
             arrTasks[index].state = taskState;
         },
 
         setTasksArray: function (arr) {
             arrTasks = [];
             arrTasks = [...arr];
-        },
-
-        removeTask: function (taskId) {
-            const index = findTaskIndex(taskId);
-            arrTasks.splice(index, 1);
         },
 
         sortTasks: function (tabId) {
@@ -57,6 +52,11 @@ const todoModel = (function () {
 
             this.setTasksArray(arrTemp);
             // console.table(arrTasks);
+        },
+
+        removeTask: function (taskId) {
+            const index = this.findTaskIndex(taskId);
+            arrTasks.splice(index, 1);
         },
 
         getTasksCount: function () {
@@ -73,16 +73,17 @@ const todoModel = (function () {
             return { countTodo, countDoing, countDone };
         },
 
+        updateLocalStorage: function () {
+            localStorage.setItem("tasks", JSON.stringify(arrTasks));
+        },
+
         getLocalStorageTasks: function () {
             const lsTasks = JSON.parse(localStorage.getItem("tasks") || "[]" );
             this.setTasksArray(lsTasks);
             
             return arrTasks;
-        },
-
-        updateLocalStorage: function () {
-            localStorage.setItem("tasks", JSON.stringify(arrTasks));
         }
+
     }
 
 })();
@@ -95,10 +96,12 @@ const todoView = (function () {
         counterDone: '.count-done',
         cStackContent: 'stack-content',
         cTask: 'task',
+        cTaskActive: 'task-active',
         cEditable: 'text-editable',
         cTaskTitle: 'task-title',
         cTaskIcon: 'task-icon',
         cTaskTitleError: 'task-title-error',
+        cTaskDesc: 'task-desc',
         cBtnAdd: 'btn-add',
         cBtnDelete: 'btn-delete'
     };
@@ -106,7 +109,7 @@ const todoView = (function () {
     const stateIcons = [`<i class="far fa-square text-light"></i>`, `<i class="far fa-edit text-yellow"></i>`, `<i class="far fa-check-square text-green"></i>`];
 
     const taskTemplate = `
-        <div class="task text-light" id="%%CARD_ID%%" draggable="true">
+        <div class="task %%CLASS_ACTIVE%%" id="%%CARD_ID%%" draggable="true">
             <div class="task-header">
                 <span class="task-title text-editable">%%CARD_TITLE%%</span>
                 <span class="task-icon">%%CARD_HEADER_ICON%%</span>
@@ -116,7 +119,7 @@ const todoView = (function () {
                 <span class="text-red">Musisz przypisać tytuł karcie!</span>
             </div>
             <div class="task-body">
-                <textarea class="task-desc">%%CARD_DESC%%</textarea>
+                <textarea class="task-desc" placeholder="Tutaj wpisz opis...">%%CARD_DESC%%</textarea>
             </div>
         </div>
     `;
@@ -137,7 +140,7 @@ const todoView = (function () {
             return DOMstrings;
         },
 
-        createTask: function (id, title, desc, state) {
+        createTask: function (id, title, desc, state, classActive) {
             var stack = document.querySelector(`#${state}`);
             setIcon(state);
 
@@ -145,8 +148,9 @@ const todoView = (function () {
                                                     .replace(/%%CARD_ID%%/, id)
                                                     .replace(/%%CARD_TITLE%%/, title)
                                                     .replace(/%%CARD_DESC%%/, desc)
+                                                    .replace(/%%CLASS_ACTIVE%%/, classActive);
 
-            stack.insertAdjacentHTML('afterbegin', currentTaskTemplate);
+            classActive === "" ? stack.insertAdjacentHTML('afterbegin', currentTaskTemplate) : stack.insertAdjacentHTML('beforeend', currentTaskTemplate); 
         },
 
         deleteTask: function (element) {
@@ -160,14 +164,15 @@ const todoView = (function () {
 
             const helpElement = taskElement.querySelector(`.${DOMstrings.cTaskTitleError}`);
 
-            if (element.value.length === 0 || element.value === "Wpisz tytuł...") {
-                helpElement.style.display="block";
-                this.toggleTitleDark(taskElement);
-                return false;
-            } else {
+            if (element.value.length !== 0 && element.value !== "Wpisz tytuł..." ) {
                 helpElement.style.display="none";
-                this.toggleTitleDark(taskElement);
+                this.addTaskClassActive(taskElement);
                 return true;
+            } else {
+                helpElement.style.display="block";
+                element.placeholder="Wpisz tytuł...";
+                this.removeTaskClassActive(taskElement);
+                return false;
             }
         },
 
@@ -217,20 +222,26 @@ const todoView = (function () {
             document.querySelector(DOMstrings.counterDone).textContent = `(${countDone})`;
         },
 
-        toggleDragnDropBorder: function () {
+        addClassDragnDropBorder: function () {
             const tasksStacks = document.querySelectorAll(`.${DOMstrings.cStackContent}`);
             tasksStacks.forEach(element => {
-                element.classList.toggle("border-dashed");
+                element.classList.add("border-dashed");
             });
         },
 
-        toggleTitleDark: function (taskElement) {
-            const helpElement = taskElement.querySelector(`.${DOMstrings.cTaskTitleError}`);
-            if (helpElement.style.display==="block") {
-                taskElement.classList.add("text-light");
-            } else {
-                taskElement.classList.remove("text-light");
-            }
+        removeClassDragnDropBorder: function () {
+            const tasksStacks = document.querySelectorAll(`.${DOMstrings.cStackContent}`);
+            tasksStacks.forEach(element => {
+                element.classList.remove("border-dashed");
+            });
+        },
+
+        addTaskClassActive: function (taskElement) {
+            taskElement.classList.add("task-active");
+        },
+
+        removeTaskClassActive: function (taskElement) {
+            taskElement.classList.remove("task-active");
         }
     }
 
@@ -251,7 +262,7 @@ const todoController = (function (todoModel, todoView) {
     };
 
     const getTaskIdArray = function () {
-        const tabDivs = [...document.querySelectorAll(".task")];
+        const tabDivs = [...document.querySelectorAll(".task.task-active")];
         const tabIds = tabDivs.map(element => element.id);
 
         return tabIds;
@@ -266,9 +277,9 @@ const todoController = (function (todoModel, todoView) {
             if ( target.classList.contains(DOMstrings.cBtnAdd) ) { // Click any of add buttons
                 const taskState = target.dataset.state;
 
-                const taskId = todoModel.initTask("Wpisz tytuł...", "Tutaj wpisz opis...", taskState);
+                const taskId = todoModel.initTask("", "", taskState);
 
-                todoView.createTask(taskId, 'Wpisz tytuł...', 'Tutaj wpisz opis...', taskState);
+                todoView.createTask(taskId, 'Wpisz tytuł...', '', taskState, "");
 
                 todoModel.sortTasks(getTaskIdArray());
 
@@ -295,36 +306,45 @@ const todoController = (function (todoModel, todoView) {
         document.addEventListener("input", function(event) {
             let target = event.target;
 
-            if ( todoView.isTitleCorrect(target) ) {
-                const taskElementId = target.closest(`.${DOMstrings.cTask}`).id;
-
-                if (target.tagName === "INPUT") {
-                    todoModel.setTitle(taskElementId , target.value);
-                } else if (target.tagName === "TEXTAREA") {
-                    todoModel.setDesc(taskElementId , target.value);
-                }
-
-                if ( isLocalStorageAvailable() ) {
-                    todoModel.updateLocalStorage();
-                }
+            if (target.tagName === "INPUT") {
+                todoView.isTitleCorrect(target);
+            } else {
+                return;
             }
-
         });
 
         // Focusout title event
-        document.addEventListener('focusout', function(event){
+        document.addEventListener('focusout', function(event) {
             let target = event.target;
 
             if ( target.tagName === "INPUT" && todoView.isTitleCorrect(target) ) {
-                const taskElementId = target.closest(`.${DOMstrings.cTask}`).id;
+                const taskElement = target.closest(`.${DOMstrings.cTask}`);
+                const taskDesc = taskElement.querySelector(`.${DOMstrings.cTaskDesc}`);
 
                 const taskTitle = todoView.switchEditableToSpan(target, DOMstrings.cTaskTitle);
-                todoModel.setTitle(taskElementId , taskTitle);
 
-                if ( isLocalStorageAvailable() ) {
-                    todoModel.updateLocalStorage();
+                if ( todoModel.findTaskIndex(taskElement.id) === -1 ) {
+                    todoModel.initTask(taskTitle, taskDesc.value, taskElement.parentElement.id)
+                } else {
+                    todoModel.setTitle(taskElement.id, taskTitle);
+                    todoModel.setDesc(taskElement.id, taskDesc.value);
                 }
 
+            } else if ( target.tagName === "TEXTAREA" ) {
+                const taskElement = target.closest(`.${DOMstrings.cTask}`);
+                const taskDesc = taskElement.querySelector(`.${DOMstrings.cTaskDesc}`);
+
+                if ( todoModel.findTaskIndex(taskElement.id) !== -1 ) {
+                    todoModel.setDesc(taskElement.id, taskDesc.value);
+                }
+            } else {
+                return;
+            }
+
+            todoView.updateCounters(todoModel.getTasksCount());
+
+            if ( isLocalStorageAvailable() ) {
+                todoModel.updateLocalStorage();
             }
         });
 
@@ -346,7 +366,7 @@ const todoController = (function (todoModel, todoView) {
 
             if ( stackElement === null ) return;
 
-            todoView.toggleDragnDropBorder();
+            todoView.removeClassDragnDropBorder();
 
             event.preventDefault();
             const data = event.dataTransfer.getData("text");
@@ -358,15 +378,18 @@ const todoController = (function (todoModel, todoView) {
                 stackElement.appendChild(taskElement);
 
                 todoView.changeStateIcon(taskElement);
-                todoModel.setState(taskElement.id, stackElement.id);
+
+                if ( todoModel.findTaskIndex(taskElement.id) !== -1 ) {
+                    todoModel.setState(taskElement.id, stackElement.id);
+                }
 
                 todoModel.sortTasks(getTaskIdArray());
 
                 todoView.updateCounters(todoModel.getTasksCount());
-            }
 
-            if ( isLocalStorageAvailable() ) {
-                todoModel.updateLocalStorage();
+                if ( isLocalStorageAvailable() ) {
+                    todoModel.updateLocalStorage();
+                }
             }
         });
 
@@ -381,7 +404,7 @@ const todoController = (function (todoModel, todoView) {
 
             event.dataTransfer.setData("text", event.target.id);
 
-            todoView.toggleDragnDropBorder();
+            todoView.addClassDragnDropBorder();
         });
     };
 
@@ -392,8 +415,7 @@ const todoController = (function (todoModel, todoView) {
             tasks = [...todoModel.getLocalStorageTasks()];
 
             for ( let i = 0; i < tasks.length; i++ ) {
-                todoView.createTask(tasks[i].id, tasks[i].title, tasks[i].desc, tasks[i].state);
-                todoView.toggleTitleDark(document.getElementById(tasks[i].id));
+                todoView.createTask(tasks[i].id, tasks[i].title, tasks[i].desc, tasks[i].state, "task-active");
             }
     
             todoView.updateCounters(todoModel.getTasksCount());
