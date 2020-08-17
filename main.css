@@ -123,6 +123,7 @@ main {
     overflow-y: auto;
     overflow-x: hidden;
     flex-direction: column;
+    border: 1px solid transparent;
 }
 
 .task {

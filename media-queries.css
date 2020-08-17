@@ -1,16 +1,32 @@
 @media (max-width: 1100px) { 
-    header {
-        padding-left: 0.5em;
-    }
-
     .stack {
         width: 33%;
+    }
+
+    .stack-header {
+        font-size: 88%;
+    }
+
+    .btn-add {
+        padding: 3px 6px;
+    }
+
+    .btn-add i {
+        margin-left: 0;
+    }
+
+    .stack-header span {
+        margin-left: 0;
     }
 }
 
 @media (max-width: 880px) { 
     body {
         font-size: 80%;
+    }
+
+    header {
+        padding-left: 0.5em;
     }
 
     .stack {
